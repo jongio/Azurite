@@ -1,9 +1,10 @@
-import * as fs from "fs";
+const fs = require("fs");
+import * as child_process from "child_process";
 
 export enum CertOptions {
   Default,
   PEM,
-  PFX
+  PFX,
 }
 
 export default abstract class ConfigurationBase {
@@ -15,10 +16,29 @@ export default abstract class ConfigurationBase {
     public readonly enableDebugLog: boolean = false,
     public readonly debugLogFilePath?: string,
     public readonly loose: boolean = false,
-    public readonly cert: string = "",
+    public cert: string = "",
     public readonly key: string = "",
-    public readonly pwd: string = ""
+    public pwd: string = "",
+    public readonly https: boolean = true
   ) {}
+
+  public exportCert() {
+    return new Promise((resolve, reject) => {
+      this.pwd = "123456";
+      this.cert = "azurite.pfx";
+      const certName = "localhost";
+      try {
+        child_process.exec(
+          `CertUtil -p ${this.pwd} -exportPFX -user ${certName} azurite.pfx`,
+          (error, stdout, stderr) => {
+            resolve({ stdout, stderr });
+          }
+        );
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
 
   public hasCert() {
     if (this.cert.length > 0 && this.key.length > 0) {
@@ -26,6 +46,9 @@ export default abstract class ConfigurationBase {
     }
     if (this.cert.length > 0 && this.pwd.toString().length > 0) {
       return CertOptions.PFX;
+    }
+    if (this.https) {
+      return this.exportCert().then(() => CertOptions.PFX);
     }
 
     return CertOptions.Default;
@@ -36,12 +59,12 @@ export default abstract class ConfigurationBase {
       case CertOptions.PEM:
         return {
           cert: fs.readFileSync(this.cert),
-          key: fs.readFileSync(this.key)
+          key: fs.readFileSync(this.key),
         };
       case CertOptions.PFX:
         return {
           pfx: fs.readFileSync(this.cert),
-          passphrase: this.pwd.toString()
+          passphrase: this.pwd.toString(),
         };
       default:
         return null;
@@ -49,7 +72,7 @@ export default abstract class ConfigurationBase {
   }
 
   public getHttpServerAddress(): string {
-    return `http${this.hasCert() === CertOptions.Default ? "" : "s"}://${
+    return `http${this.hasCert() == CertOptions.Default ? "" : "s"}://${
       this.host
     }:${this.port}`;
   }
