@@ -1,5 +1,5 @@
-const fs = require("fs");
 import * as child_process from "child_process";
+import * as fs from "fs";
 
 export enum CertOptions {
   Default,
