@@ -2,11 +2,11 @@ import args from "args";
 
 import {
   DEFAULT_BLOB_LISTENING_PORT,
-  DEFAULT_BLOB_SERVER_HOST_NAME,
+  DEFAULT_BLOB_SERVER_HOST_NAME
 } from "../blob/utils/constants";
 import {
   DEFAULT_QUEUE_LISTENING_PORT,
-  DEFAULT_QUEUE_SERVER_HOST_NAME,
+  DEFAULT_QUEUE_SERVER_HOST_NAME
 } from "../queue/utils/constants";
 import IEnvironment from "./IEnvironment";
 

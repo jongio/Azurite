@@ -3,7 +3,7 @@ import args from "args";
 import IQueueEnvironment from "./IQueueEnvironment";
 import {
   DEFAULT_QUEUE_LISTENING_PORT,
-  DEFAULT_QUEUE_SERVER_HOST_NAME,
+  DEFAULT_QUEUE_SERVER_HOST_NAME
 } from "./utils/constants";
 
 args

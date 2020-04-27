@@ -4,7 +4,7 @@ import * as child_process from "child_process";
 export enum CertOptions {
   Default,
   PEM,
-  PFX,
+  PFX
 }
 
 export default abstract class ConfigurationBase {
@@ -59,12 +59,12 @@ export default abstract class ConfigurationBase {
       case CertOptions.PEM:
         return {
           cert: fs.readFileSync(this.cert),
-          key: fs.readFileSync(this.key),
+          key: fs.readFileSync(this.key)
         };
       case CertOptions.PFX:
         return {
           pfx: fs.readFileSync(this.cert),
-          passphrase: this.pwd.toString(),
+          passphrase: this.pwd.toString()
         };
       default:
         return null;
@@ -72,7 +72,7 @@ export default abstract class ConfigurationBase {
   }
 
   public getHttpServerAddress(): string {
-    return `http${this.hasCert() == CertOptions.Default ? "" : "s"}://${
+    return `http${this.hasCert() === CertOptions.Default ? "" : "s"}://${
       this.host
     }:${this.port}`;
   }
