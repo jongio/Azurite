@@ -23,21 +23,15 @@ export default abstract class ConfigurationBase {
   ) {}
 
   public exportCert() {
-    return new Promise((resolve, reject) => {
-      this.pwd = "123456";
-      this.cert = "azurite.pfx";
-      const certName = "localhost";
-      try {
-        child_process.exec(
-          `CertUtil -p ${this.pwd} -exportPFX -user ${certName} azurite.pfx`,
-          (error, stdout, stderr) => {
-            resolve({ stdout, stderr });
-          }
-        );
-      } catch (err) {
-        reject(err);
-      }
-    });
+    const pwd = "123456";
+    const certName = "localhost";
+    try {
+      child_process.execSync(
+        `CertUtil -p ${pwd} -exportPFX -user ${certName} azurite.pfx`
+      );
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   public hasCert() {
@@ -48,7 +42,12 @@ export default abstract class ConfigurationBase {
       return CertOptions.PFX;
     }
     if (this.https) {
-      return this.exportCert().then(() => CertOptions.PFX);
+      this.pwd = "123456";
+      this.cert = "azurite.pfx";
+      if (!fs.existsSync("azurite.pfx")) {
+        this.exportCert();
+      }
+      return CertOptions.PFX;
     }
 
     return CertOptions.Default;
