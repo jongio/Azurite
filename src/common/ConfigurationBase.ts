@@ -22,18 +22,6 @@ export default abstract class ConfigurationBase {
     public readonly https: boolean = true
   ) {}
 
-  public exportCert() {
-    const pwd = "123456";
-    const certName = "localhost";
-    try {
-      child_process.execSync(
-        `CertUtil -p ${pwd} -exportPFX -user ${certName} azurite.pfx`
-      );
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
   public hasCert() {
     if (this.cert.length > 0 && this.key.length > 0) {
       return CertOptions.PEM;
@@ -45,7 +33,16 @@ export default abstract class ConfigurationBase {
       this.pwd = "123456";
       this.cert = "azurite.pfx";
       if (!fs.existsSync("azurite.pfx")) {
-        this.exportCert();
+        const certName = "localhost";
+        try {
+          child_process.execSync(
+            `CertUtil -p ${this.pwd} -exportPFX -user ${certName} azurite.pfx`
+          );
+        } catch (err) {
+          console.log(
+            "Please run 'dotnet dev-certs https --trust' to install certificate."
+          );
+        }
       }
       return CertOptions.PFX;
     }
