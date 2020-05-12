@@ -7,5 +7,6 @@ export default interface IBlobEnvironment {
   cert(): string | undefined;
   key(): string | undefined;
   pwd(): string | undefined;
+  https(): boolean;
   debug(): Promise<string | boolean | undefined>;
 }

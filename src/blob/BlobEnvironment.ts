@@ -42,7 +42,8 @@ if (!(args as any).config.name) {
       ["d", "debug"],
       "Optional. Enable debug log by providing a valid local file path as log destination"
     )
-    .option(["", "pwd"], "Optional. Password for .pfx file.");
+    .option(["", "pwd"], "Optional. Password for .pfx file.")
+    .option(["", "https"], "Optional. Use default HTTPS mode");
 
   (args as any).config.name = "azurite-blob";
 }
@@ -89,6 +90,13 @@ export default class BlobEnvironment implements IBlobEnvironment {
 
   public pwd(): string | undefined {
     return this.flags.pwd;
+  }
+
+  public https(): boolean {
+    if (process.argv.includes("https")) {
+      return true;
+    }
+    return this.flags.https;
   }
 
   public async debug(): Promise<string | undefined> {

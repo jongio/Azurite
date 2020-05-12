@@ -1,3 +1,4 @@
+import * as child_process from "child_process";
 import * as fs from "fs";
 
 export enum CertOptions {
@@ -15,9 +16,10 @@ export default abstract class ConfigurationBase {
     public readonly enableDebugLog: boolean = false,
     public readonly debugLogFilePath?: string,
     public readonly loose: boolean = false,
-    public readonly cert: string = "",
+    public cert: string = "",
     public readonly key: string = "",
-    public readonly pwd: string = ""
+    public pwd: string = "",
+    public readonly https: boolean = false
   ) {}
 
   public hasCert() {
@@ -25,6 +27,23 @@ export default abstract class ConfigurationBase {
       return CertOptions.PEM;
     }
     if (this.cert.length > 0 && this.pwd.toString().length > 0) {
+      return CertOptions.PFX;
+    }
+    if (this.https) {
+      this.pwd = "123456";
+      this.cert = "azurite.pfx";
+      if (!fs.existsSync("azurite.pfx")) {
+        const certName = "localhost";
+        try {
+          child_process.execSync(
+            `CertUtil -p ${this.pwd} -exportPFX -user ${certName} azurite.pfx`
+          );
+        } catch (err) {
+          throw new Error(
+            "Please run 'dotnet dev-certs https --trust' to install certificate."
+          );
+        }
+      }
       return CertOptions.PFX;
     }
 

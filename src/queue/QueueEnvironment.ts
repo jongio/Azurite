@@ -30,6 +30,7 @@ args
   .option(["", "cert"], "Optional. Path to certificate file.")
   .option(["", "key"], "Optional. Path to certificate key .pem file.")
   .option(["", "pwd"], "Optional. Password for .pfx file.")
+  .option(["", "https"], "Optional. Use default HTTPS mode")
   .option(
     ["d", "debug"],
     "Optional. Enable debug log by providing a valid local file path as log destination"
@@ -77,6 +78,13 @@ export default class QueueEnvironment implements IQueueEnvironment {
 
   public pwd(): string | undefined {
     return this.flags.pwd;
+  }
+
+  public https(): boolean {
+    if (process.argv.includes("https")) {
+      return true;
+    }
+    return this.flags.https;
   }
 
   public async debug(): Promise<string | undefined> {
