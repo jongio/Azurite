@@ -102,7 +102,10 @@ export default class Environment implements IEnvironment {
     return this.flags.pwd;
   }
 
-  public https(): string | undefined {
+  public https(): boolean {
+    if (process.argv.includes("https")) {
+      return true;
+    }
     return this.flags.https;
   }
 

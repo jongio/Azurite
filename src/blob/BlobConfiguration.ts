@@ -36,7 +36,8 @@ export default class BlobConfiguration extends ConfigurationBase {
     loose: boolean = false,
     cert: string = "",
     key: string = "",
-    pwd: string = ""
+    pwd: string = "",
+    https: boolean = false
   ) {
     super(
       host,
@@ -48,7 +49,8 @@ export default class BlobConfiguration extends ConfigurationBase {
       loose,
       cert,
       key,
-      pwd
+      pwd,
+      https
     );
   }
 }

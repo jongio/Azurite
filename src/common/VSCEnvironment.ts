@@ -86,4 +86,8 @@ export default class VSCEnvironment implements IEnvironment {
   public pwd(): string | undefined {
     return this.workspaceConfiguration.get<string>("pwd");
   }
+
+  public https(): boolean {
+    return this.workspaceConfiguration.get<boolean>("https") || false;
+  }
 }

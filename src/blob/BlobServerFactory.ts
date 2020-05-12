@@ -70,7 +70,8 @@ export class BlobServerFactory {
           env.loose(),
           env.cert(),
           env.key(),
-          env.pwd()
+          env.pwd(),
+          env.https()
         );
         return new BlobServer(config);
       }

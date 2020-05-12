@@ -92,7 +92,10 @@ export default class BlobEnvironment implements IBlobEnvironment {
     return this.flags.pwd;
   }
 
-  public https(): string | undefined {
+  public https(): boolean {
+    if (process.argv.includes("https")) {
+      return true;
+    }
     return this.flags.https;
   }
 

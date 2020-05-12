@@ -19,7 +19,7 @@ export default abstract class ConfigurationBase {
     public cert: string = "",
     public readonly key: string = "",
     public pwd: string = "",
-    public readonly https: boolean = true
+    public readonly https: boolean = false
   ) {}
 
   public hasCert() {
@@ -39,7 +39,7 @@ export default abstract class ConfigurationBase {
             `CertUtil -p ${this.pwd} -exportPFX -user ${certName} azurite.pfx`
           );
         } catch (err) {
-          console.log(
+          throw new Error(
             "Please run 'dotnet dev-certs https --trust' to install certificate."
           );
         }

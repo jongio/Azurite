@@ -80,7 +80,10 @@ export default class QueueEnvironment implements IQueueEnvironment {
     return this.flags.pwd;
   }
 
-  public https(): string | undefined {
+  public https(): boolean {
+    if (process.argv.includes("https")) {
+      return true;
+    }
     return this.flags.https;
   }
 
