@@ -38,8 +38,8 @@
   },
   "devDependencies": {
     "@types/validator": "^10.11.3",
-    "@azure/storage-blob": "^10.4.1",
-    "@azure/storage-queue": "^10.2.0",
+    "@azure/storage-blob": "^12.1.1",
+    "@azure/storage-queue": "^12.0.4",
     "@types/args": "^3.0.0",
     "@types/async": "^3.0.1",
     "@types/bluebird": "^3.5.27",

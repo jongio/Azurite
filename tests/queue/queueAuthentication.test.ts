@@ -1,12 +1,10 @@
 import * as assert from "assert";
 
 import {
-  Aborter,
   AnonymousCredential,
-  QueueURL,
-  ServiceURL,
-  SharedKeyCredential,
-  StorageURL
+  newPipeline,
+  QueueServiceClient,
+  StorageSharedKeyCredential
 } from "@azure/storage-queue";
 
 import { configLogger } from "../../src/common/Logger";
@@ -65,25 +63,25 @@ describe("Queue Authentication", () => {
   [{ serverType: "http" }, { serverType: "https" }].forEach(test => {
     const baseURL = `${test.serverType}://${host}:${port}/devstoreaccount1`;
     it(`Should not work without credential @loki when using ${test.serverType}`, async () => {
-      const serviceURL = new ServiceURL(
+      const serviceClient = new QueueServiceClient(
         baseURL,
-        StorageURL.newPipeline(new AnonymousCredential(), {
+        newPipeline(new AnonymousCredential(), {
           retryOptions: { maxTries: 1 }
         })
       );
 
       const queueName: string = getUniqueName("queue-with-dash");
-      const queueURL = QueueURL.fromServiceURL(serviceURL, queueName);
+      const queueClient = serviceClient.getQueueClient(queueName);
 
       let err;
       try {
-        await queueURL.create(Aborter.none);
+        await queueClient.create();
       } catch (error) {
         err = error;
       } finally {
         if (err === undefined) {
           try {
-            await queueURL.delete(Aborter.none);
+            await queueClient.delete();
           } catch (error) {
             /* Noop */
           }
@@ -93,10 +91,10 @@ describe("Queue Authentication", () => {
     });
 
     it(`Should not work without correct account name @loki when using ${test.serverType}`, async () => {
-      const serviceURL = new ServiceURL(
+      const serviceClient = new QueueServiceClient(
         baseURL,
-        StorageURL.newPipeline(
-          new SharedKeyCredential("invalid", EMULATOR_ACCOUNT_KEY),
+        newPipeline(
+          new StorageSharedKeyCredential("invalid", EMULATOR_ACCOUNT_KEY),
           {
             retryOptions: { maxTries: 1 }
           }
@@ -104,17 +102,17 @@ describe("Queue Authentication", () => {
       );
 
       const queueName: string = getUniqueName("queue-with-dash");
-      const queueURL = QueueURL.fromServiceURL(serviceURL, queueName);
+      const queueClient = serviceClient.getQueueClient(queueName);
 
       let err;
       try {
-        await queueURL.create(Aborter.none);
+        await queueClient.create();
       } catch (error) {
         err = error;
       } finally {
         if (err === undefined) {
           try {
-            await queueURL.delete(Aborter.none);
+            await queueClient.delete();
           } catch (error) {
             /* Noop */
           }
@@ -124,10 +122,10 @@ describe("Queue Authentication", () => {
     });
 
     it(`Should not work without correct account key @loki when using ${test.serverType}`, async () => {
-      const serviceURL = new ServiceURL(
+      const serviceClient = new QueueServiceClient(
         baseURL,
-        StorageURL.newPipeline(
-          new SharedKeyCredential(EMULATOR_ACCOUNT_NAME, "invalidkey"),
+        newPipeline(
+          new StorageSharedKeyCredential(EMULATOR_ACCOUNT_NAME, "invalidkey"),
           {
             retryOptions: { maxTries: 1 }
           }
@@ -135,17 +133,17 @@ describe("Queue Authentication", () => {
       );
 
       const queueName: string = getUniqueName("queue-with-dash");
-      const queueURL = QueueURL.fromServiceURL(serviceURL, queueName);
+      const queueClient = serviceClient.getQueueClient(queueName);
 
       let err;
       try {
-        await queueURL.create(Aborter.none);
+        await queueClient.create();
       } catch (error) {
         err = error;
       } finally {
         if (err === undefined) {
           try {
-            await queueURL.delete(Aborter.none);
+            await queueClient.delete();
           } catch (error) {
             /* Noop */
           }
@@ -160,10 +158,10 @@ describe("Queue Authentication", () => {
      */
     if (test.serverType != "https") {
       it(`Should work with correct shared key @loki when using ${test.serverType}`, async () => {
-        const serviceURL = new ServiceURL(
+        const serviceClient = new QueueServiceClient(
           baseURL,
-          StorageURL.newPipeline(
-            new SharedKeyCredential(
+          newPipeline(
+            new StorageSharedKeyCredential(
               EMULATOR_ACCOUNT_NAME,
               EMULATOR_ACCOUNT_KEY
             ),
@@ -174,10 +172,10 @@ describe("Queue Authentication", () => {
         );
 
         const queueName: string = getUniqueName("queue-with-dash");
-        const queueURL = QueueURL.fromServiceURL(serviceURL, queueName);
+        const queueClient = serviceClient.getQueueClient(queueName);
 
-        await queueURL.create(Aborter.none);
-        await queueURL.delete(Aborter.none);
+        await queueClient.create();
+        await queueClient.delete();
       });
     }
   });
