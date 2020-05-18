@@ -2,6 +2,7 @@ import * as http from "http";
 import * as https from "https";
 
 import AccountDataStore from "../common/AccountDataStore";
+import { CertOptions } from "../common/ConfigurationBase";
 import IAccountDataStore from "../common/IAccountDataStore";
 import IGCManager from "../common/IGCManager";
 import IRequestListenerFactory from "../common/IRequestListenerFactory";
@@ -56,9 +57,16 @@ export default class QueueServer extends ServerBase {
     const port = configuration.port;
 
     // We can create a HTTP server or a HTTPS server here
-    const httpServer = !configuration.hasCert()
-      ? http.createServer()
-      : https.createServer(configuration.getCert());
+    let httpServer;
+    const certOption = configuration.hasCert();
+    switch (certOption) {
+      case CertOptions.PEM:
+      case CertOptions.PFX:
+        httpServer = https.createServer(configuration.getCert(certOption)!);
+        break;
+      default:
+        httpServer = http.createServer();
+    }
 
     // We can change the persistency layer implementation by
     // creating a new XXXDataStore class implementing IBlobDataStore interface
