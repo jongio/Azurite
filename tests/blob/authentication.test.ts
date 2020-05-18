@@ -1,10 +1,8 @@
 import {
-  Aborter,
   AnonymousCredential,
-  ContainerURL,
-  ServiceURL,
-  SharedKeyCredential,
-  StorageURL
+  BlobServiceClient,
+  newPipeline,
+  StorageSharedKeyCredential
 } from "@azure/storage-blob";
 import * as assert from "assert";
 
@@ -35,28 +33,25 @@ describe("Authentication", () => {
   [{ serverType: "http" }, { serverType: "https" }].forEach(async test => {
     const baseURL = `${test.serverType}://${server.config.host}:${server.config.port}/devstoreaccount1`;
     it(`Should not work without credential @loki @sql when using ${test.serverType}`, async () => {
-      const serviceURL = new ServiceURL(
+      const serviceClient = new BlobServiceClient(
         baseURL,
-        StorageURL.newPipeline(new AnonymousCredential(), {
+        newPipeline(new AnonymousCredential(), {
           retryOptions: { maxTries: 1 }
         })
       );
 
       const containerName: string = getUniqueName("1container-with-dash");
-      const containerURL = ContainerURL.fromServiceURL(
-        serviceURL,
-        containerName
-      );
+      const containerClient = serviceClient.getContainerClient(containerName);
 
       let err;
       try {
-        await containerURL.create(Aborter.none);
+        await containerClient.create();
       } catch (error) {
         err = error;
       } finally {
         if (err === undefined) {
           try {
-            await containerURL.delete(Aborter.none);
+            await containerClient.delete();
           } catch (error) {
             /* Noop */
           }
@@ -66,10 +61,10 @@ describe("Authentication", () => {
     });
 
     it(`Should not work without correct account name @loki @sql when using ${test.serverType}`, async () => {
-      const serviceURL = new ServiceURL(
+      const serviceClient = new BlobServiceClient(
         baseURL,
-        StorageURL.newPipeline(
-          new SharedKeyCredential("invalid", EMULATOR_ACCOUNT_KEY),
+        newPipeline(
+          new StorageSharedKeyCredential("invalid", EMULATOR_ACCOUNT_KEY),
           {
             retryOptions: { maxTries: 1 }
           }
@@ -77,20 +72,17 @@ describe("Authentication", () => {
       );
 
       const containerName: string = getUniqueName("1container-with-dash");
-      const containerURL = ContainerURL.fromServiceURL(
-        serviceURL,
-        containerName
-      );
+      const containerClient = serviceClient.getContainerClient(containerName);
 
       let err;
       try {
-        await containerURL.create(Aborter.none);
+        await containerClient.create();
       } catch (error) {
         err = error;
       } finally {
         if (err === undefined) {
           try {
-            await containerURL.delete(Aborter.none);
+            await containerClient.delete();
           } catch (error) {
             /* Noop */
           }
@@ -100,10 +92,10 @@ describe("Authentication", () => {
     });
 
     it(`Should not work without correct account key @loki @sql when using ${test.serverType}`, async () => {
-      const serviceURL = new ServiceURL(
+      const serviceClient = new BlobServiceClient(
         baseURL,
-        StorageURL.newPipeline(
-          new SharedKeyCredential(EMULATOR_ACCOUNT_NAME, "invalidkey"),
+        newPipeline(
+          new StorageSharedKeyCredential(EMULATOR_ACCOUNT_NAME, "invalidkey"),
           {
             retryOptions: { maxTries: 1 }
           }
@@ -111,20 +103,17 @@ describe("Authentication", () => {
       );
 
       const containerName: string = getUniqueName("1container-with-dash");
-      const containerURL = ContainerURL.fromServiceURL(
-        serviceURL,
-        containerName
-      );
+      const containerClient = serviceClient.getContainerClient(containerName);
 
       let err;
       try {
-        await containerURL.create(Aborter.none);
+        await containerClient.create();
       } catch (error) {
         err = error;
       } finally {
         if (err === undefined) {
           try {
-            await containerURL.delete(Aborter.none);
+            await containerClient.delete();
           } catch (error) {
             /* Noop */
           }
@@ -139,10 +128,10 @@ describe("Authentication", () => {
      */
     if (test.serverType != "https") {
       it(`Should work with correct shared key @loki @sql when using ${test.serverType}`, async () => {
-        const serviceURL = new ServiceURL(
+        const serviceClient = new BlobServiceClient(
           baseURL,
-          StorageURL.newPipeline(
-            new SharedKeyCredential(
+          newPipeline(
+            new StorageSharedKeyCredential(
               EMULATOR_ACCOUNT_NAME,
               EMULATOR_ACCOUNT_KEY
             ),
@@ -153,13 +142,10 @@ describe("Authentication", () => {
         );
 
         const containerName: string = getUniqueName("1container-with-dash");
-        const containerURL = ContainerURL.fromServiceURL(
-          serviceURL,
-          containerName
-        );
+        const containerClient = serviceClient.getContainerClient(containerName);
 
-        await containerURL.create(Aborter.none);
-        await containerURL.delete(Aborter.none);
+        await containerClient.create();
+        await containerClient.delete();
       });
     }
   });
